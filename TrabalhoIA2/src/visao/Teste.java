@@ -8,8 +8,8 @@ import modelo.No;
 
 public class Teste {
 	public static void main(String args []){
-		int quant = 3;
-		int capacidadeCanoa = (int) quant/2 + (quant%2);
+		int quant = 4;
+		int capacidadeCanoa = (int) quant/2 + 1;
 		
 		Controle c = new Controle(capacidadeCanoa);
 		Estado e = new Estado(false, quant, 0, quant, 0);
