@@ -8,7 +8,7 @@ import modelo.No;
 
 public class Teste {
 	public static void main(String args []){
-		int quant = 4;
+		int quant = 3;
 		int capacidadeCanoa = (int) quant/2 + 1;
 		
 		Controle c = new Controle(capacidadeCanoa);
@@ -21,6 +21,7 @@ public class Teste {
 		System.out.println("No Inicial: "+e.getMargemCanoa()+", "+quant+", 0, "+quant+", 0");
 		Scanner input = new Scanner(System.in);
 		String pausa = input.next();
-		c.buscaEmProfundidade(noInicial);
+		//c.buscaEmProfundidade(noInicial);
+		c.buscaEmLargura(noInicial);
 	}
 }

@@ -9,11 +9,13 @@ import modelo.No;
 
 public class Controle implements modelo.FuncoesControle{
 	private ArrayList<Estado> estadosTestados = new ArrayList<Estado>();
-	boolean solucaoEncontrada = false;
+	private boolean solucaoEncontrada = false;
 	private int capacidadeCanoa;
+	private int quantNosVisitados;
 	
 	public Controle(int capacidadeCanoa){
 		this.capacidadeCanoa = capacidadeCanoa;
+		this.quantNosVisitados = 0;
 	}
 	
 	//verifica se um estado já foi testado
@@ -45,38 +47,41 @@ public class Controle implements modelo.FuncoesControle{
 		return false;
 	}
 	
-	//testa a possibilidade de transportar um canibal e um missionário e retorna o estado resultante
-	private No transportaUmDeCada(No noInicial){
-		No newNo = null;
-		
-		Estado e;
-		//true = direita; false = esquerda
-		boolean ladoCanoa = noInicial.getEstado().getMargemCanoa();
-		int quantCanibais = 0;
-		int quantMissionarios = 0;
-			
-		//Descobrindo em que margem está a canoa
-		if(ladoCanoa == true){
-			quantCanibais = noInicial.getEstado().getQuantCanibaisDireita();
-			quantMissionarios = noInicial.getEstado().getQuantMissionariosDireita();
-		}
-		else{
-			quantCanibais = noInicial.getEstado().getQuantCanibaisEsquerda();
-			quantMissionarios = noInicial.getEstado().getQuantMissionariosEsquerda();
-		}
-			
-		if(quantCanibais >= 1 && quantMissionarios >= 1){
+	//testa a possibilidade de transportar a mesma quantidade de canibais e missionários e retorna o estado resultante
+	private No transportaCanibaisEMissionarios(No noInicial, int numero){
+		No newNo;
+		if(numero >= 1 && numero <= capacidadeCanoa && numero%2 == 0){
+			numero = numero/2;
+			Estado e;
+			//true = direita; false = esquerda
+			boolean ladoCanoa = noInicial.getEstado().getMargemCanoa();
+			int quantCanibais = 0;
+			int quantMissionarios = 0;
+				
+			//Descobrindo em que margem está a canoa
 			if(ladoCanoa == true){
-				e = new Estado(!ladoCanoa, noInicial.getEstado().getQuantMissionariosEsquerda()+1, quantMissionarios-1, noInicial.getEstado().getQuantCanibaisEsquerda()+1, quantCanibais-1);
+				quantCanibais = noInicial.getEstado().getQuantCanibaisDireita();
+				quantMissionarios = noInicial.getEstado().getQuantMissionariosDireita();
 			}
 			else{
-				e = new Estado(!ladoCanoa, quantMissionarios-1, noInicial.getEstado().getQuantMissionariosDireita()+1, quantCanibais-1, noInicial.getEstado().getQuantCanibaisDireita()+1);
+				quantCanibais = noInicial.getEstado().getQuantCanibaisEsquerda();
+				quantMissionarios = noInicial.getEstado().getQuantMissionariosEsquerda();
 			}
-		
-			newNo = new No(noInicial, e);
+				
+			if(quantCanibais >= numero && quantMissionarios >= numero){
+				if(ladoCanoa == true){
+					e = new Estado(!ladoCanoa, noInicial.getEstado().getQuantMissionariosEsquerda()+numero, quantMissionarios-numero, noInicial.getEstado().getQuantCanibaisEsquerda()+numero, quantCanibais-numero);
+				}
+				else{
+					e = new Estado(!ladoCanoa, quantMissionarios-numero, noInicial.getEstado().getQuantMissionariosDireita()+numero, quantCanibais-numero, noInicial.getEstado().getQuantCanibaisDireita()+numero);
+				}
+			
+				newNo = new No(noInicial, e);
+				return newNo;
+			}
 		}
 			
-		return newNo;
+		return null;
 	}
 		
 	//testa a possibilidade de transportar apenas canibais e retorna o estado resultante
@@ -146,30 +151,166 @@ public class Controle implements modelo.FuncoesControle{
 	private boolean testaTudo(No novoNo, No noInicial){
 		if(isValido(novoNo.getEstado())){
 			if(!isTestado(novoNo.getEstado())){
-				//um novo filho é adicionado ao nó incial
-				noInicial.addFilho(novoNo);
+				quantNosVisitados++;
 				//Exibe informação de nó expandido
 				System.out.println("Novo No: "+novoNo.getEstado().getMargemCanoa()+", "+novoNo.getEstado().getQuantMissionariosEsquerda()+", "
-						+novoNo.getEstado().getQuantMissionariosDireita()+", "+novoNo.getEstado().getQuantCanibaisEsquerda()+", "+novoNo.getEstado().getQuantCanibaisDireita());
-				//Expande o nó
+						+novoNo.getEstado().getQuantMissionariosDireita()+", "+novoNo.getEstado().getQuantCanibaisEsquerda()+", "+novoNo.getEstado().getQuantCanibaisDireita());				
+				System.out.println("Quantidade de nós visitados: "+quantNosVisitados);
 				Scanner input = new Scanner(System.in);
 				String pausa = input.next();
 				return true;
 			}
 			else{
-				//Estado já foi testado
+				return false;
 			}
 		}
 		else{
-			//Exibir estado inválido
+			return false;
 		}
-		return false;
 	}
 	
 	@Override
 	public void buscaEmLargura(No noInicial) {
-		// TODO Auto-generated method stub
-		
+		if(noInicial == null)
+			return;
+		if(!isSolucao(noInicial.getEstado())){
+			estadosTestados.add(noInicial.getEstado());
+			No novoNo;
+			
+			//Inicio de testes de expansão
+			
+			//Teste de possibilidade de transportar a mesma quantidade de canibais e missionarios
+			for(int i=capacidadeCanoa; i>0; i--){
+				if(!solucaoEncontrada){
+					novoNo = transportaCanibaisEMissionarios(noInicial, i);
+					if(novoNo != null){
+						if(testaTudo(novoNo, noInicial)){
+							if(noInicial.getFilhos().size()>0){
+								noInicial.getFilhos().get(noInicial.getFilhos().size()-1).setIrmaoDireito(novoNo);
+							}
+							noInicial.addFilho(novoNo);
+							solucaoEncontrada = isSolucao(novoNo.getEstado());
+							estadosTestados.add(novoNo.getEstado());
+						}
+					}
+					else{
+						//Impossibilidade de transportar canibais e missionarios
+					}
+				}
+				else{
+					break;
+				}
+			}
+			//Fim da primeira possibilidade
+			
+			//Teste de possibilidade de transportar apenas canibais
+			for(int i=capacidadeCanoa; i>0; i--){
+				if(!solucaoEncontrada){
+					novoNo = transportaCanibais(noInicial,i);
+					if(novoNo != null){
+						if(testaTudo(novoNo, noInicial)){
+							if(noInicial.getFilhos().size()>0){
+								noInicial.getFilhos().get(noInicial.getFilhos().size()-1).setIrmaoDireito(novoNo);
+							}
+							noInicial.addFilho(novoNo);
+							solucaoEncontrada = isSolucao(novoNo.getEstado());
+							estadosTestados.add(novoNo.getEstado());
+						}
+					}
+					else{
+						////Impossibilidade de transportar apenas canibais
+					}
+				}
+				else{
+					break;
+				}
+			}
+			//Fim da segunda possibilidade
+			
+			//Teste de possibilidade de transportar apenas missionários
+			for(int i=capacidadeCanoa; i>0; i--){
+				if(!solucaoEncontrada){
+					novoNo = transportaMissionarios(noInicial,i);
+					if(novoNo != null){
+						if(testaTudo(novoNo, noInicial)){
+							if(noInicial.getFilhos().size()>0){
+								noInicial.getFilhos().get(noInicial.getFilhos().size()-1).setIrmaoDireito(novoNo);
+							}
+							noInicial.addFilho(novoNo);
+							solucaoEncontrada = isSolucao(novoNo.getEstado());
+							estadosTestados.add(novoNo.getEstado());
+						}
+					}
+					else{
+						////Impossibilidade de transportar apenas missionários
+					}
+				}
+				else{
+					break;
+				}
+			}
+			//Fim da terceira possibilidade
+			
+			//O nó foi completamente expandido
+			noInicial.expandir();
+			
+			//Fim do teste de todas as possibilidades
+			
+			No noASerExpandido  = noInicial;
+			if(!solucaoEncontrada){
+				if(!noInicial.isRaiz()){
+					while(noASerExpandido.isExpandido()){
+						//Se tiver irmão
+						if(noInicial.getIrmaoDireito() != null){
+							//Se o irmão não tiver sido expandido
+							if(!noInicial.getIrmaoDireito().isExpandido()){
+								noASerExpandido = noInicial.getIrmaoDireito();
+							}
+							else{
+								if(noASerExpandido.getIrmaoDireito().getFilhos().size()>0){
+									noASerExpandido = noASerExpandido.getIrmaoDireito().getFilhos().get(0);
+									while(noASerExpandido.isExpandido()){
+										if(noASerExpandido.getFilhos().size() > 0)
+											noASerExpandido = noASerExpandido.getFilhos().get(0);
+										else
+											break;
+									}
+								}
+							}
+						
+						}
+						else{
+							while(noASerExpandido.getPai() != null){
+								noASerExpandido = noASerExpandido.getPai();
+								if(noASerExpandido.getIrmaoDireito() != null){
+									noASerExpandido = noASerExpandido.getIrmaoDireito();
+									break;
+								}
+							}
+							
+							if(noASerExpandido.getFilhos().size() > 0){
+								noASerExpandido = noASerExpandido.getFilhos().get(0);
+								while(noASerExpandido.isExpandido()){
+									if(noASerExpandido.getFilhos().size() > 0)
+										noASerExpandido = noASerExpandido.getFilhos().get(0);
+									else
+										break;
+								}
+							}
+						}
+					}
+					buscaEmLargura(noASerExpandido);
+				}	
+				else{
+					buscaEmLargura(noInicial.getFilhos().get(0));
+				}
+				
+			}
+			
+		}
+		else{				
+			solucaoEncontrada = true;
+		}
 	}
 	
 	@Override
@@ -180,17 +321,24 @@ public class Controle implements modelo.FuncoesControle{
 			
 			//Início de testes de possibilidades de Transporte
 			
-			//Teste de possibilidade de transportar um de cada
-			novoNo = transportaUmDeCada(noInicial);
-			if(novoNo != null){
-				if(testaTudo(novoNo, noInicial)){
-					noInicial.addFilho(novoNo);
-					buscaEmProfundidade(novoNo);
+			//Teste de possibilidade de transportar a mesma quantidade de canibais e missionarios
+			for(int i=capacidadeCanoa; i>0; i--){
+				if(!solucaoEncontrada){
+					novoNo = transportaCanibaisEMissionarios(noInicial, i);
+					if(novoNo != null){
+						if(testaTudo(novoNo, noInicial)){
+							noInicial.addFilho(novoNo);
+							buscaEmProfundidade(novoNo);
+						}
+						
+					}
+					else{
+						//Impossibilidade de transportar canibais e missionarios
+					}
 				}
-				
-			}
-			else{
-				//Impossibilidade de transportar um de cada
+				else{
+					break;
+				}
 			}
 			//Fim da primeira possibilidade
 			
@@ -238,7 +386,6 @@ public class Controle implements modelo.FuncoesControle{
 			if(!solucaoEncontrada){
 				//-------FIM DO RAMO--------
 				System.out.println("-----------FIM DO RAMO---------\n");
-				estadosTestados.remove(estadosTestados.size()-1);
 				Scanner input = new Scanner(System.in);
 				String pausa = input.next();
 			}
