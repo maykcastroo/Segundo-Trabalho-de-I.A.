@@ -8,7 +8,7 @@ import modelo.No;
 
 public class Teste {
 	public static void main(String args []){
-		int quant = 5;
+		int quant = 3;
 		int capacidadeCanoa = 2;
 		
 		Controle c = new Controle(capacidadeCanoa);
