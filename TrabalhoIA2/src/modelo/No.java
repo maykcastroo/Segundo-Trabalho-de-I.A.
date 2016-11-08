@@ -2,7 +2,7 @@ package modelo;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class No {
+public class No implements Comparable<No>{
 	private Estado estado;
 	private No pai;
 	private No irmaoDireito;
@@ -58,5 +58,25 @@ public class No {
 	
 	public void expandir(){
 		this.expandido = true;
+	}
+
+	@Override
+	public int compareTo(No arg) {
+		if(this.getEstado().getQuantCanibaisDireita() >= arg.getEstado().getQuantCanibaisDireita() && this.getEstado().getQuantMissionariosDireita() >= arg.getEstado().getQuantMissionariosDireita()){
+			return -1;
+		}
+		else{
+			if(this.getEstado().getQuantCanibaisDireita() > arg.getEstado().getQuantCanibaisDireita()){
+				return -1;
+			}
+			else{
+				if(this.getEstado().getQuantMissionariosDireita() > arg.getEstado().getQuantMissionariosDireita()){
+					return -1;
+				}
+				else{
+					return 1;
+				}
+			}
+		}
 	}
 }
