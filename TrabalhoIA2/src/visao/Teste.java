@@ -26,5 +26,7 @@ public class Teste {
 		//c.buscaGulosa(noInicial);
 		//c.buscaA(noInicial);
 		System.out.println("Número máximo de nós na fronteira de estados: "+c.quantidadeNosFronteiraDeEstados(noInicial));
+		
+		/* CONFIRMAÇÃO COMMIT */
 	}
 }
