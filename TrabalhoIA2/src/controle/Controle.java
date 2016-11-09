@@ -183,7 +183,7 @@ public class Controle implements modelo.FuncoesControle{
 						+novoNo.getEstado().getQuantMissionariosDireita()+", "+novoNo.getEstado().getQuantCanibaisEsquerda()+", "+novoNo.getEstado().getQuantCanibaisDireita());				
 				System.out.println("Quantidade de nós gerados: "+quantNosVisitados);
 				Scanner input = new Scanner(System.in);
-				String pausa = input.next();
+				//String pausa = input.next();
 				return true;
 			}
 			else{
@@ -208,7 +208,7 @@ public class Controle implements modelo.FuncoesControle{
 			//Teste de possibilidade de transportar a mesma quantidade de canibais e missionarios
 			for(int i=capacidadeCanoa; i>0; i--){
 				if(!solucaoEncontrada){
-					novoNo = transportaCanibaisEMissionarios(noInicial, i);
+					novoNo = transportaCanibaisEMissionarios(noInicial, i); //testa se eh possivel transportar
 					if(novoNo != null){
 						if(testaTudo(novoNo, noInicial)){
 							if(noInicial.getFilhos().size()>0){
@@ -513,7 +513,7 @@ public class Controle implements modelo.FuncoesControle{
 				if(noInicial.getFilhos().size() > 0){
 					for(int i=0; i<noInicial.getFilhos().size(); i++){
 						if(!solucaoEncontrada)
-							buscaEmProfundidade(noInicial.getFilhos().get(i));
+							buscaGulosa(noInicial.getFilhos().get(i));
 						else{
 							break;
 						}

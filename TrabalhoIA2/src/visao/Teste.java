@@ -8,7 +8,7 @@ import modelo.No;
 
 public class Teste {
 	public static void main(String args []){
-		int quant = 3;
+		int quant = 8;
 		int capacidadeCanoa = 2;
 		
 		Controle c = new Controle(capacidadeCanoa);
@@ -20,11 +20,11 @@ public class Teste {
 				+ "false = canoa está na margem esquerda\n");
 		System.out.println("No Inicial: "+e.getMargemCanoa()+", "+quant+", 0, "+quant+", 0");
 		Scanner input = new Scanner(System.in);
-		String pausa = input.next();
+		//String pausa = input.next();
 		//c.buscaEmProfundidade(noInicial);
-		//c.buscaEmLargura(noInicial);
+		c.buscaEmLargura(noInicial);
 		//c.buscaGulosa(noInicial);
-		c.buscaA(noInicial);
+		//c.buscaA(noInicial);
 		System.out.println("Número máximo de nós na fronteira de estados: "+c.quantidadeNosFronteiraDeEstados(noInicial));
 	}
 }
